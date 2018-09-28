@@ -19,8 +19,8 @@ public class GameManager : MonoBehaviour {
     Image TransitionPanel;
     Image PausePanel;
     private bool isPause = false;
-    private AudioSource MusicSource;
-    private AudioClip music;
+    public AudioSource MusicSource;
+    public AudioClip music;
 
     private bool Timefinish = false;
     private float timer = 0;

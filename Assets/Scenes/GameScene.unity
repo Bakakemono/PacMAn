@@ -465,6 +465,8 @@ MonoBehaviour:
   spawnNodeA: {x: 1, y: 1}
   spawnNodeB: {x: 30, y: 30}
   Appeard: 0
+  MusicSource: {fileID: 0}
+  music: {fileID: 0}
   timerText: {fileID: 1928830040}
   Opponents: []
   loose: 0

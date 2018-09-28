@@ -23,10 +23,9 @@ GameObject:
   - component: {fileID: 50072778132254978}
   - component: {fileID: 114012315314400098}
   - component: {fileID: 114365505675819856}
-  - component: {fileID: 114155771782818622}
   m_Layer: 0
   m_Name: TestlPlayer
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -72,30 +71,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1214026383303276}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77002269f236d4b448c4845fa162b4af, type: 3}
+  m_Script: {fileID: 11500000, guid: 280a27105ecaf644ea2e92f6704c1464, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114155771782818622
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1214026383303276}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_TransformSyncMode: 1
-  m_SendInterval: 0
-  m_SyncRotationAxis: 0
-  m_RotationSyncCompression: 0
-  m_SyncSpin: 0
-  m_MovementTheshold: 0.01
-  m_VelocityThreshold: 0.0001
-  m_SnapThreshold: 5
-  m_InterpolateRotation: 1
-  m_InterpolateMovement: 1
+  speed: 5
 --- !u!114 &114365505675819856
 MonoBehaviour:
   m_ObjectHideFlags: 1

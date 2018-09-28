@@ -3,27 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-
-public class TestPlayer : NetworkBehaviour {
-
-    //   public int speed = 10;
-    //// Use this for initialization
-    //void Start () {
-
-    //}
-
-    //// Update is called once per frame
-    //void Update () {
-    //       if (!isLocalPlayer)
-    //           return;
-    //       transform.position =    transform.position +
-    //                               new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"), 0).normalized * Time.deltaTime * speed;
-    //}
-
-    //   public override void OnStartLocalPlayer()
-    //   {
-    //       GetComponent<SpriteRenderer>().color = Color.blue;
-    //   }
+public class TestPlayerNet : NetworkBehaviour {
 
     private Rigidbody2D rigid;
     private Vector2 input;
@@ -53,45 +33,47 @@ public class TestPlayer : NetworkBehaviour {
     void Start()
     {
         customNetworkManager = FindObjectOfType<CustomNetworkManager>();
-        
-        if(isLocalPlayer && !isServer)
+
+        if (isLocalPlayer && !isServer)
         {
+            CmdPlayerNmbUpdate(0);
+
             for (int i = 1; i < nmbPlayer; i++)
             {
-                if (!customNetworkManager.playerNmb[i])
+                
+                if (customNetworkManager.numberPlayer == i)
                 {
                     playerNmb = i;
-                    CmdPlayerNmbUpdate(i);
-
                     //gameObject.tag = "tracker";
                     CmdUpdatPlayerNmb(i);
-                    customNetworkManager.playerNmb[i] = true;
-                    Debug.Log("playerNmb Supposed : "+i);
+                    customNetworkManager.numberPlayer = i + 1;
+                    Debug.Log("playerNmb Supposed : " + i);
                     break;
                 }
             }
-            //if (playerNmb == 0)
-            //    Destroy(gameObject);
+            if (playerNmb == -1)
+                Destroy(gameObject);
         }
-        Debug.Log("playerNMB : " + playerNmb);
+        Debug.Log("playerNMB    : " + playerNmb);
 
-        if (playerNmb == 0)
+        if (playerNmb == -1)
         {
             CmdPlayerNmbUpdate(0);
 
             CmdUpdatPlayerNmb(0);
-            customNetworkManager.playerNmb[0] = true;
+            //customNetworkManager.playerNmb[0] = true;
 
+            playerNmb = 0;
             PlayerGirl = true;
         }
 
-        rigid = GetComponent<Rigidbody2D>(); 
+        rigid = GetComponent<Rigidbody2D>();
         board = FindObjectOfType<BoardCreator>();
         gameManager = FindObjectOfType<GameManager>();
 
         Grid = board.Grid;
 
-        AssignBegingingNode(); 
+        AssignBegingingNode();
         //if (PlayerGirl)
         //{
         //    Trackers = new List<Transform>();
@@ -270,12 +252,13 @@ public class TestPlayer : NetworkBehaviour {
         Debug.Log("send");
     }
 
-    [Command] private void CmdUpdatPlayerNmb(int _playerNmb)
+    [Command]
+    private void CmdUpdatPlayerNmb(int _playerNmb)
     {
         playerNmb = _playerNmb;
     }
 
-    
+
 
     [Command]
     private void CmdNodePosition(Vector2 _currentNode, Vector2 _targetNode, int _playerNmb)
@@ -293,22 +276,7 @@ public class TestPlayer : NetworkBehaviour {
     [Command]
     public void CmdPlayerNmbUpdate(int _nmbPlayer)
     {
-        customNetworkManager.RpcPlayerNmbUpdate(_nmbPlayer);
+        //customNetworkManager.RpcPlayerNmbUpdate(_nmbPlayer);
+        customNetworkManager.numberPlayer = customNetworkManager.numberPlayer + 1;
     }
-
-
-
-    //private void CheckLoose()
-    //{
-    //    if (!gameManager.loose)
-    //        foreach (Transform t in Trackers)
-    //        {
-    //            if (Vector2.Distance(transform.position, t.position) < radius * 2)
-    //            {
-    //                gameManager.loose = true;
-    //                break;
-    //            }
-    //        }
-    //}
-
 }
