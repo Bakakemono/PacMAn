@@ -121,8 +121,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1138348304}
-  - component: {fileID: 1138348303}
   - component: {fileID: 1138348302}
+  - component: {fileID: 1138348303}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -138,22 +138,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1138348301}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 227461547, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  manager: {fileID: 0}
-  showGUI: 1
-  offsetX: 0
-  offsetY: 0
---- !u!114 &1138348303
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1138348301}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -822479833, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Script: {fileID: 11500000, guid: 2b20f14218bc0ee48a01f8b4480ef4bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_NetworkPort: 7777
@@ -227,6 +212,21 @@ MonoBehaviour:
   matchSize: 4
   isNetworkActive: 0
   matchMaker: {fileID: 0}
+--- !u!114 &1138348303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1138348301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 227461547, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  manager: {fileID: 0}
+  showGUI: 1
+  offsetX: 0
+  offsetY: 0
 --- !u!4 &1138348304
 Transform:
   m_ObjectHideFlags: 0
@@ -251,7 +251,7 @@ GameObject:
   - component: {fileID: 1372166115}
   - component: {fileID: 1372166114}
   m_Layer: 0
-  m_Name: CustomNetworkManager
+  m_Name: NetworkContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -287,7 +287,7 @@ MonoBehaviour:
     i13: 0
     i14: 0
     i15: 0
-  m_ServerOnly: 1
+  m_ServerOnly: 0
   m_LocalPlayerAuthority: 0
 --- !u!114 &1372166115
 MonoBehaviour:
@@ -301,9 +301,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MusicTime: 0
-  currentNodes: []
-  targetNodes: []
-  playerNmb: 
+  playerOne: 0
+  playerTwo: 0
+  playerThree: 0
+  playerFour: 0
+  playerFive: 0
 --- !u!4 &1372166116
 Transform:
   m_ObjectHideFlags: 0
@@ -311,7 +313,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1372166113}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.031684, y: -0.66745204, z: 13.236047}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -57096,7 +57098,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shakeDuration: 0
-  shakeAmount: 0.3
+  shakeAmount: 0.7
   decreaseFactor: 1
 --- !u!81 &1797560046
 AudioListener:

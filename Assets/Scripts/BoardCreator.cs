@@ -7,7 +7,7 @@ public class BoardCreator : MonoBehaviour {
 
     public Node[,] Grid;
 
-    [SerializeField] public Vector2Int GridSize;
+    [SerializeField] public Vector2Int GridSize = new Vector2Int(32, 32);
     [SerializeField] private Tilemap WallTileMap;
 
     private bool isRunning = false;

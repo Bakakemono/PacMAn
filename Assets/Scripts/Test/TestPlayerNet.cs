@@ -5,82 +5,110 @@ using UnityEngine.Networking;
 
 public class TestPlayerNet : NetworkBehaviour {
 
+    //Le Rigidbody du player
     private Rigidbody2D rigid;
+
+    //Entree du player pour savoir dans quelle direction il souhaite aller
     private Vector2 input;
+
+    //La dernière direction du player enregistre en attente d'utilisation
     private Vector2Int newDirection = new Vector2Int(0, 0);
+    //L'ancienne direction du player valable tant que "newDirection" ne la remplace pas
     private Vector2Int direction = new Vector2Int(0, 0);
 
+    //vitesse generale du player
     [SerializeField] private float speed = 1;
 
+    //Script de creation du player
     private BoardCreator board;
-    private GameManager gameManager;
 
+    //Tableau contenant toute la zone de jeux avec les nodes accessible ou non par le player
     private Node[,] Grid;
+    //Le node duquel est parti le player
     private Node currentNode;
+    //Le node vers lequel le player se dirige
     private Node targetNode;
+    //La taille du player
     private float radius = 0.5f;
+    //Liste contenant tout les attanquant que la coureuse doit eviter
     private List<Transform> Trackers;
+    //Booleen servant a savoir si le player est ou non la coureuse
     private bool PlayerGirl = false;
 
-
-    [SyncVar] private int playerNmb = -1;
-    private int nmbPlayer = 5;
+    //Varaible syncronisee servant à connaitre sont numero de player et donc sont spawn
+    [SyncVar] private int playerSlot = 0;
 
     private SpriteRenderer Sprite;
     private CustomNetworkManager customNetworkManager;
+
+    //Variable syncronisee pour partager le currentNode
+    [SyncVar] private int CurX;
+    [SyncVar] private int CurY;
+
+    //Variable syncronisee pour partager le targetNode
+    [SyncVar] private int TarX;
+    [SyncVar] private int TarY;
+
+
+    private bool noMorePlace = false;
+
 
     // Use this for initialization
     void Start()
     {
         customNetworkManager = FindObjectOfType<CustomNetworkManager>();
+        if (isLocalPlayer)
+            CmdUpdatePlayerSelected();
 
         if (isLocalPlayer && !isServer)
         {
-            CmdPlayerNmbUpdate(0);
+            CmdUpdatePlayerSelected();
 
-            for (int i = 1; i < nmbPlayer; i++)
+            if (!customNetworkManager.playerTwo)
             {
-                
-                if (customNetworkManager.numberPlayer == i)
-                {
-                    playerNmb = i;
-                    //gameObject.tag = "tracker";
-                    CmdUpdatPlayerNmb(i);
-                    customNetworkManager.numberPlayer = i + 1;
-                    Debug.Log("playerNmb Supposed : " + i);
-                    break;
-                }
+                SetupPlayer(1);
             }
-            if (playerNmb == -1)
+            else if (!customNetworkManager.playerThree)
+            {
+                SetupPlayer(2);
+            }
+            else if (!customNetworkManager.playerFour)
+            {
+                SetupPlayer(3);
+            }
+            else if (!customNetworkManager.playerFive)
+            {
+                SetupPlayer(4);
+            }
+            else
+            {
+                noMorePlace = true;
+            }
+
+
+            if (noMorePlace)
+            {
+                Debug.LogError("Too much player");
                 Destroy(gameObject);
+            }
         }
-        Debug.Log("playerNMB    : " + playerNmb);
 
-        if (playerNmb == -1)
+        if (playerSlot == 0 && isLocalPlayer && isServer)
         {
-            CmdPlayerNmbUpdate(0);
-
-            CmdUpdatPlayerNmb(0);
-            //customNetworkManager.playerNmb[0] = true;
-
-            playerNmb = 0;
+            CmdSyncPlayerNumber(0);
+            playerSlot = 0;
             PlayerGirl = true;
+            CmdSyncPlayerSelected(0);
         }
 
         rigid = GetComponent<Rigidbody2D>();
         board = FindObjectOfType<BoardCreator>();
-        gameManager = FindObjectOfType<GameManager>();
 
         Grid = board.Grid;
 
+        Sprite = GetComponent<SpriteRenderer>();
+
         AssignBegingingNode();
-        //if (PlayerGirl)
-        //{
-        //    Trackers = new List<Transform>();
-
-        //    Trackers.Add(GameObject.FindWithTag("Tracker").transform);
-
-        //}
     }
 
     // Update is called once per frame
@@ -99,18 +127,27 @@ public class TestPlayerNet : NetworkBehaviour {
                 //CheckLoose();
             }
         }
-        if (playerNmb == 0)
-            GetComponent<SpriteRenderer>().color = Color.blue;
+        if (isLocalPlayer && isServer)
+        {
+
+        }
+        if (playerSlot == 0)
+            Sprite.color = Color.yellow;
         else
-            GetComponent<SpriteRenderer>().color = Color.red;
-        //}
+            Sprite.color = new Color(1, 0.2f, 0, 1);
+
+        if (isLocalPlayer && gameObject.tag == "Tracker")
+        {
+            Sprite.color = new Color(1, 0, 0, 1);
+        }
+
     }
 
     private void FixedUpdate()
     {
         if (!isLocalPlayer)
         {
-            SetupNodeNetwork();
+            SetupNodeNotClient();
             GoToTargetNotCLient();
         }
     }
@@ -148,26 +185,30 @@ public class TestPlayerNet : NetworkBehaviour {
 
     private void AssignBegingingNode()
     {
-        if (PlayerGirl || playerNmb == 0)
+        if (isLocalPlayer)
         {
-            currentNode = Grid[(Random.value > 0.5 ? 1 : 30), (Random.value > 0.5 ? 1 : 30)];
+            if (PlayerGirl || playerSlot == 0)
+            {
+                currentNode = Grid[(Random.value > 0.5 ? 1 : 30), (Random.value > 0.5 ? 1 : 30)];
+            }
+
+            else
+            {
+                if (playerSlot == 1)
+                    currentNode = Grid[14, 17];
+                else if (playerSlot == 2)
+                    currentNode = Grid[17, 17];
+                else if (playerSlot == 3)
+                    currentNode = Grid[14, 14];
+                else if (playerSlot == 4)
+                    currentNode = Grid[17, 14];
+            }
+
+            targetNode = currentNode;
+            CmdSyncNode(currentNode.GridPosition, targetNode.GridPosition);
+
+            transform.position = currentNode.Position;
         }
-
-        else
-        {
-            if (playerNmb == 1)
-                currentNode = Grid[14, 17];
-            else if (playerNmb == 2)
-                currentNode = Grid[17, 17];
-            else if (playerNmb == 3)
-                currentNode = Grid[14, 14];
-            else if (playerNmb == 4)
-                currentNode = Grid[14, 14];
-        }
-
-        targetNode = currentNode;
-        transform.position = currentNode.Position;
-
     }
 
     private void FindTargetClient()
@@ -200,6 +241,7 @@ public class TestPlayerNet : NetworkBehaviour {
         //if (gameManager.finish)
         //    rigid.velocity = new Vector2(0, 0);
 
+        //Permet au joueur de changer de direction sur la même ligne
         if ((direction + newDirection) == Vector2Int.zero)
         {
             rigid.velocity = new Vector2(0, 0);
@@ -216,6 +258,7 @@ public class TestPlayerNet : NetworkBehaviour {
             UpdateNode();
         }
 
+        //Check si le player est arrive a destination ou si il se trouve a son point de depart
         if (Vector2.Distance(targetNode.Position, transform.position) < 0.1f || currentNode == targetNode)
         {
             transform.position = targetNode.Position;
@@ -226,20 +269,18 @@ public class TestPlayerNet : NetworkBehaviour {
         }
     }
 
-    private void SetupNodeNetwork()
+    private void SetupNodeNotClient()
     {
-        Vector2Int _currentNodePos = new Vector2Int(customNetworkManager.currentNodes[playerNmb].x, customNetworkManager.currentNodes[playerNmb].y);
-        currentNode = Grid[_currentNodePos.x, _currentNodePos.y];
+        currentNode = Grid[CurX, CurY];
 
-        Vector2Int _targetNodePos = new Vector2Int(customNetworkManager.targetNodes[playerNmb].x, customNetworkManager.targetNodes[playerNmb].y);
-        targetNode = Grid[_targetNodePos.x, _targetNodePos.y];
+        targetNode = Grid[TarX, TarY];
     }
 
     private void GoToTargetNotCLient()
     {
         rigid.velocity = (targetNode.Position - new Vector2(transform.position.x, transform.position.y)).normalized * speed;
 
-        if (Vector2.Distance(targetNode.Position, transform.position) < 0.1f || currentNode == targetNode)
+        if (Vector2.Distance(targetNode.Position, transform.position) < 0.1f || targetNode.GridPosition == currentNode.GridPosition)
         {
             transform.position = targetNode.Position;
             rigid.velocity = Vector2.zero;
@@ -248,35 +289,124 @@ public class TestPlayerNet : NetworkBehaviour {
 
     private void UpdateNode()
     {
-        CmdNodePosition(currentNode.GridPosition, targetNode.GridPosition, playerNmb);
-        Debug.Log("send");
+        //CmdNodePosition(currentNode.GridPosition, targetNode.GridPosition, playerNmb);
+        //Debug.Log("send");
+
+        CmdSyncNode(currentNode.GridPosition, targetNode.GridPosition);
     }
 
     [Command]
-    private void CmdUpdatPlayerNmb(int _playerNmb)
+    private void CmdSyncPlayerNumber(int _playerNmb)
     {
-        playerNmb = _playerNmb;
-    }
-
-
-
-    [Command]
-    private void CmdNodePosition(Vector2 _currentNode, Vector2 _targetNode, int _playerNmb)
-    {
-        Debug.Log("recieve");
-        int cX = Mathf.RoundToInt(_currentNode.x);
-        int cY = Mathf.RoundToInt(_currentNode.y);
-        int tX = Mathf.RoundToInt(_targetNode.x);
-        int tY = Mathf.RoundToInt(_targetNode.y);
-
-
-        customNetworkManager.RpcNodePosition(cX, cY, tX, tY, _playerNmb);
+        playerSlot = _playerNmb;
     }
 
     [Command]
-    public void CmdPlayerNmbUpdate(int _nmbPlayer)
+    private void CmdSyncNode(Vector2 _currentNode, Vector2 _targetNode)
     {
-        //customNetworkManager.RpcPlayerNmbUpdate(_nmbPlayer);
-        customNetworkManager.numberPlayer = customNetworkManager.numberPlayer + 1;
+        CurX = Mathf.RoundToInt(_currentNode.x);
+        CurY = Mathf.RoundToInt(_currentNode.y);
+
+        TarX = Mathf.RoundToInt(_targetNode.x);
+        TarY = Mathf.RoundToInt(_targetNode.y);
+
+    }
+
+    [Command]
+    private void CmdSyncPlayerSelected(int _playerSelect)
+    {
+        if (_playerSelect == 0)
+        {
+            customNetworkManager.playerOne = true;
+        }
+        else if (_playerSelect == 1)
+        {
+            customNetworkManager.playerTwo = true;
+        }
+        else if (_playerSelect == 2)
+        {
+            customNetworkManager.playerThree = true;
+        }
+        else if (_playerSelect == 3)
+        {
+            customNetworkManager.playerFour = true;
+        }
+        else if (_playerSelect == 4)
+        {
+            customNetworkManager.playerFive = true;
+        }
+    }
+
+    private void SetupPlayer(int _playerSlot)
+    {
+        playerSlot = _playerSlot;
+        gameObject.tag = "Tracker";
+        CmdSendTag();
+        CmdSyncPlayerNumber(_playerSlot);
+        CmdSyncPlayerSelected(_playerSlot);
+        noMorePlace = false;
+    }
+
+    [Command]
+    private void CmdUpdatePlayerSelected()
+    {
+        if (isServer)
+        {
+            customNetworkManager.playerOne = customNetworkManager.playerOne;
+            customNetworkManager.playerTwo = customNetworkManager.playerTwo;
+            customNetworkManager.playerThree = customNetworkManager.playerThree;
+            customNetworkManager.playerFour = customNetworkManager.playerFour;
+            customNetworkManager.playerFive = customNetworkManager.playerFive;
+        }
+    }
+
+    [Command]
+    private void CmdOnPlayerDisconnected(int _playerSlot)
+    {
+        if (_playerSlot == 0)
+        {
+            customNetworkManager.playerOne = false;
+        }
+        else if (_playerSlot == 1)
+        {
+            customNetworkManager.playerTwo = false;
+        }
+        else if (_playerSlot == 2)
+        {
+            customNetworkManager.playerThree = false;
+        }
+        else if (_playerSlot == 3)
+        {
+            customNetworkManager.playerFour = false;
+        }
+        else if (_playerSlot == 4)
+        {
+            customNetworkManager.playerFive = false;
+        }
+    }
+
+    private void DisconnetPlayer()
+    {
+        if (isClient)
+            CmdOnPlayerDisconnected(playerSlot);
+    }
+
+    [Command]
+    private void CmdSendTag()
+    {
+        RpcSendTag();
+    }
+
+    [ClientRpc]
+    private void RpcSendTag()
+    {
+        gameObject.tag = "Tracker";
+    }
+
+    public override void OnNetworkDestroy()
+    {
+        DisconnetPlayer();
+        Debug.Log("logout player : " + playerSlot);
+        base.OnNetworkDestroy();
     }
 }
