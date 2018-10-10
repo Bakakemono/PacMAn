@@ -18,6 +18,18 @@ EditorBuildSettings:
     path: Assets/Scenes/WinScene.unity
     guid: 053318f081bc9a7469ede98798c3b0f9
   - enabled: 1
-    path: Assets/Scenes/Test/TestScene.unity
+    path: Assets/Scenes/Network/MainMenuNetwork.unity
+    guid: 8c3a059b3b14c744686b8f338a430ee8
+  - enabled: 1
+    path: Assets/Scenes/Network/LobbyNetwork.unity
+    guid: ce63459c71245fc42a7774a3067f08ae
+  - enabled: 1
+    path: Assets/Scenes/Network/GameSceneNetwork.unity
     guid: 719b3bdcc94bbdc4682ccdbb99781fa7
+  - enabled: 1
+    path: Assets/Scenes/Network/LooseSceneNetwork.unity
+    guid: 59f7f36ae8813344288d9ee1f8c16017
+  - enabled: 1
+    path: Assets/Scenes/Network/WinSceneNetwork.unity
+    guid: 16d01fac14fc9fd4095fb406ced84a53
   m_configObjects: {}
